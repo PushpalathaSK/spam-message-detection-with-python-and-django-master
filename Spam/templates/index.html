@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>AI Moderation Dashboard</title>
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+
+<style>
+body {
+    background: #0f172a;
+    color: #e2e8f0;
+}
+
+.navbar {
+    background: #020617;
+}
+
+.card {
+    background: #1e293b;
+    border-radius: 12px;
+    border: none;
+}
+
+textarea {
+    background: #020617 !important;
+    color: #f8fafc !important;
+    border: 1px solid #475569 !important;
+}
+
+textarea::placeholder {
+    color: #94a3b8;
+}
+
+.badge-spam {
+    background: #ef4444;
+}
+
+.badge-safe {
+    background: #22c55e;
+}
+
+.feed-item {
+    padding: 12px;
+    border-bottom: 1px solid #334155;
+}
+
+.feed-item:hover {
+    background: #334155;
+}
+
+.result-box {
+    padding: 15px;
+    border-radius: 10px;
+    margin-top: 10px;
+}
+
+.result-spam {
+    background: rgba(239, 68, 68, 0.1);
+}
+
+.result-safe {
+    background: rgba(34, 197, 94, 0.1);
+}
+
+.small-text {
+    font-size: 13px;
+    color: #94a3b8;
+}
+
+.stat-box {
+    background: #020617;
+    padding: 10px;
+    border-radius: 10px;
+    text-align: center;
+}
+</style>
+</head>
+
+<body>
+
+<!-- NAVBAR -->
+<nav class="navbar navbar-dark px-4">
+    <span class="navbar-brand">🧠 AI Spam Detection System</span>
+    <div>
+        <a href="/output/" class="btn btn-outline-light btn-sm">Logs</a>
+        <a href="/logout/" class="btn btn-danger btn-sm">Logout</a>
+    </div>
+</nav>
+
+<div class="container mt-4">
+
+    <!-- STATS -->
+    <div class="row mb-3 text-center">
+        <div class="col-md-4">
+            <div class="stat-box">
+                <div>Total</div>
+                <h5>{{ comments|length }}</h5>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="stat-box">
+                <div>Spam Detected</div>
+                <h5 class="text-danger">{{ spam_count }}</h5>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="stat-box">
+                <div>Safe Messages</div>
+                <h5 class="text-success">{{ safe_count }}</h5>
+            </div>
+        </div>
+    </div>
+
+    <!-- INPUT -->
+    <div class="card p-4 mb-4">
+        <h5>Test Message</h5>
+
+        <form method="POST" action="/checkSpam/">
+            {% csrf_token %}
+            <textarea name="rawdata" class="form-control mb-3" rows="3"
+                      placeholder="Enter message..."></textarea>
+            <button class="btn btn-primary w-100">Analyze</button>
+        </form>
+
+        {% if last_result %}
+            <div class="result-box {% if last_result == 'Spam' %}result-spam{% else %}result-safe{% endif %}">
+
+                <h6>Result:</h6>
+
+                {% if last_result == "Spam" %}
+                    <span class="badge badge-spam">SPAM</span>
+                {% else %}
+                    <span class="badge badge-safe">SAFE</span>
+                {% endif %}
+
+                <div class="small-text mt-2">
+                    Confidence: {{ confidence }}%
+                </div>
+
+                {% if keywords %}
+                <div class="small-text">
+                    Trigger Words: {{ keywords }}
+                </div>
+                {% endif %}
+
+            </div>
+        {% endif %}
+    </div>
+
+    <!-- CLEAN FEED -->
+    <div class="card p-3">
+        <h5>🟢 Clean Messages Feed</h5>
+
+        {% for comment in comments %}
+            <div class="feed-item d-flex justify-content-between">
+                <span>{{ comment.text }}</span>
+                <span class="badge badge-safe">SAFE</span>
+            </div>
+        {% empty %}
+            <p class="text-muted">No clean messages yet</p>
+        {% endfor %}
+
+    </div>
+
+</div>
+
+</body>
+</html>
