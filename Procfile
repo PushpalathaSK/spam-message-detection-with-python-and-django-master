@@ -1,1 +1,1 @@
-web: gunicorn SMD.wsgi:application
+web: gunicorn SMD.wsgi
