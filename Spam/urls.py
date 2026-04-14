@@ -7,4 +7,6 @@ urlpatterns = [
     path('output/', views.output_page),
     path('logout/', views.logout),
     path('api_predict', views.api_predict),
+    path('insights/', views.insights, name='insights'),
+path('feedback/<int:id>/<str:action>/', views.feedback),
 ]

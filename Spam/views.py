@@ -5,6 +5,7 @@ import os
 import joblib
 import re
 import nltk
+import time
 from nltk.stem import PorterStemmer
 from nltk.corpus import stopwords
 from .models import Comment
@@ -35,6 +36,8 @@ def clean_text(text):
 # ---------------- INDEX VIEW ----------------
 @cache_control(no_cache=True, must_revalidate=True, no_store=True)
 def index(request):
+
+    # LOGIN HANDLING
     if request.method == "POST":
         un = request.POST.get('username')
         up = request.POST.get('password')
@@ -46,12 +49,12 @@ def index(request):
 
     if request.session.get('authdetails') == "techwithvp":
 
-        comments = Comment.objects.filter(result__icontains="Not Spam").order_by('-id')
+        comments = Comment.objects.filter(result="Not Spam").order_by('-id')
 
-        # 🔥 STATS (NEW)
+        # 🔥 ANALYTICS
         total = Comment.objects.count()
-        spam_count = Comment.objects.filter(result__icontains="Spam").count()
-        safe_count = Comment.objects.filter(result__icontains="Not Spam").count()
+        spam_count = Comment.objects.filter(result="Spam").count()
+        safe_count = Comment.objects.filter(result="Not Spam").count()
 
         return render(request, 'index.html', {
             "comments": comments,
@@ -70,11 +73,9 @@ def checkSpam(request):
         rawData = request.POST.get("rawdata")
 
         if not rawData:
-            comments = Comment.objects.filter(result__icontains="Not Spam").order_by('-id')
-            return render(request, 'index.html', {
-                "comments": comments,
-                "error": "Please enter text"
-            })
+            return redirect('/')
+
+        start_time = time.time()
 
         # CLEAN + VECTORIZE
         cleaned = clean_text(rawData)
@@ -83,18 +84,23 @@ def checkSpam(request):
         # ML PREDICTION
         pred = model.predict(vector)[0]
 
-        # 🔥 SAFE PROBABILITY (if available)
+        # 🔥 CONFIDENCE
         try:
             prob = model.predict_proba(vector)[0][1]
             confidence = round(prob * 100, 2)
         except:
-            confidence = "N/A (SVM)"
+            try:
+                score = model.decision_function(vector)[0]
+                confidence = round(abs(score) * 10, 2)
+            except:
+                confidence = 0.0
 
         # RULE-BASED BOOST
         text_lower = rawData.lower()
         spam_keywords = [
-            "free", "win", "winner", "lottery", "click here",
-            "urgent", "offer", "money", "cash", "prize", "claim"
+            "free", "win", "winner", "lottery",
+            "click here", "urgent", "offer",
+            "money", "cash", "prize", "claim"
         ]
 
         rule_score = sum(1 for word in spam_keywords if word in text_lower)
@@ -105,26 +111,77 @@ def checkSpam(request):
         else:
             result = "Not Spam"
 
-        # SAVE
-        Comment.objects.create(text=rawData, result=result)
+        processing_time = round(time.time() - start_time, 3)
 
-        # FETCH UPDATED DATA
-        comments = Comment.objects.filter(result__icontains="Not Spam").order_by('-id')
+        # SAVE WITH CONFIDENCE
+        Comment.objects.create(
+            text=rawData,
+            result=result,
+            confidence=confidence
+        )
+
+        # REFRESH DATA
+        comments = Comment.objects.filter(result="Not Spam").order_by('-id')
 
         total = Comment.objects.count()
-        spam_count = Comment.objects.filter(result__icontains="Spam").count()
-        safe_count = Comment.objects.filter(result__icontains="Not Spam").count()
+        spam_count = Comment.objects.filter(result="Spam").count()
+        safe_count = Comment.objects.filter(result="Not Spam").count()
 
         return render(request, 'index.html', {
             "comments": comments,
             "last_result": result,
             "confidence": confidence,
+            "time": processing_time,
             "total": total,
             "spam_count": spam_count,
             "safe_count": safe_count
         })
 
     return redirect('/')
+
+# ---------------- INSIGHTS PAGE ----------------
+def insights(request):
+    if request.session.get('authdetails') == "techwithvp":
+
+        all_messages = Comment.objects.all().order_by('-id')
+
+        total = all_messages.count()
+        spam_count = all_messages.filter(result__icontains="Spam").count()
+        safe_count = all_messages.filter(result__icontains="Not Spam").count()
+
+        # 🔥 FEEDBACK MISTAKES
+        mistakes = all_messages.exclude(feedback__isnull=True).count()
+
+        # 🔥 ACCURACY CALCULATION (STEP 4)
+        if total > 0:
+            accuracy = round(((total - mistakes) / total) * 100, 2)
+        else:
+            accuracy = 0
+
+        return render(request, 'insights.html', {
+            "all_messages": all_messages,
+            "total": total,
+            "spam_count": spam_count,
+            "safe_count": safe_count,
+            "mistakes": mistakes,
+            "accuracy": accuracy
+        })
+
+    return redirect('/')
+
+# ---------------- FEEDBACK ----------------
+def feedback(request, id, action):
+    comment = Comment.objects.get(id=id)
+
+    if action == "spam":
+        comment.feedback = "Marked as Spam"
+        comment.result = "Spam"   # 🔥 UPDATE RESULT
+    elif action == "safe":
+        comment.feedback = "Marked as Safe"
+        comment.result = "Not Spam"   # 🔥 UPDATE RESULT
+
+    comment.save()
+    return redirect('/insights/')
 
 # ---------------- OUTPUT PAGE ----------------
 def output_page(request):
@@ -155,8 +212,9 @@ def api_predict(request):
 
     text_lower = text.lower()
     spam_keywords = [
-        "free", "win", "winner", "lottery", "click here",
-        "urgent", "offer", "money", "cash", "prize", "claim"
+        "free", "win", "winner", "lottery",
+        "click here", "urgent", "offer",
+        "money", "cash", "prize", "claim"
     ]
 
     rule_score = sum(1 for word in spam_keywords if word in text_lower)

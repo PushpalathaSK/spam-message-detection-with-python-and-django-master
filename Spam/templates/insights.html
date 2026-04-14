@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>AI Insights Dashboard</title>
+
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+<link href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css" rel="stylesheet">
+
+<style>
+
+/* ---------- GLOBAL ---------- */
+body {
+    background: url("/static/Spam/Images/bgb.png") no-repeat center center fixed;
+    background-size: cover;
+    color: #e2e8f0;
+    font-family: 'Segoe UI', sans-serif;
+}
+
+/* ---------- NAVBAR ---------- */
+/* NAVBAR BASE */
+.custom-navbar {
+    background: linear-gradient(to right, #020617, #0f172a);
+    border-bottom: 2px solid #1e293b;
+    padding-top: 12px;
+    padding-bottom: 12px;
+}
+
+/* LOGO BOX */
+.logo-box {
+    width: 45px;
+    height: 45px;
+    border-radius: 12px;
+    background: linear-gradient(135deg, #3b82f6, #6366f1);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 20px;
+    box-shadow: 0 0 12px rgba(59, 130, 246, 0.6);
+}
+
+/* NAV LINKS */
+.nav-btn {
+    color: #cbd5f5 !important;
+    font-size: 14px;
+    transition: 0.3s;
+    padding: 6px 10px;
+    border-radius: 8px;
+}
+
+.nav-btn:hover {
+    background: #1e293b;
+    color: #38bdf8 !important;
+}
+
+/* ACTIVE LOOK (optional if you want later) */
+.nav-btn.active {
+    background: linear-gradient(135deg, #2563eb, #4f46e5);
+    color: white !important;
+    box-shadow: 0 0 10px rgba(59, 130, 246, 0.6);
+}
+
+/* ICON SPACING */
+.nav-btn i {
+    margin-right: 5px;
+}
+/* ---------- STATS ---------- */
+.stat-card {
+    background: #1e293b;
+    padding: 20px;
+    border-radius: 12px;
+    transition: 0.3s;
+}
+
+.stat-card:hover {
+    transform: translateY(-5px);
+    background: #334155;
+}
+
+.stat-card h6 {
+    color: #94a3b8;
+}
+
+.stat-card h2 {
+    margin-top: 10px;
+    font-weight: bold;
+}
+
+.stat-card.spam h2 {
+    color: #ef4444;
+}
+
+.stat-card.safe h2 {
+    color: #22c55e;
+}
+
+/* ---------- CARD ---------- */
+.card {
+    background: #1e293b;
+    border: none;
+    border-radius: 12px;
+}
+
+/* ---------- TABLE ---------- */
+.table {
+    color: #e2e8f0;
+}
+
+.table thead {
+    background: #020617;
+}
+
+.table tbody tr:hover {
+    background: #1e40af !important;
+}
+
+/* ---------- SCROLL ---------- */
+.custom-table {
+    max-height: 400px;
+    overflow-y: auto;
+    border-radius: 10px;
+}
+
+/* ---------- BADGES ---------- */
+.badge {
+    font-size: 12px;
+}
+
+/* ---------- BUTTONS ---------- */
+.btn-sm {
+    margin: 2px;
+}
+
+</style>
+</head>
+
+<body>
+
+<!-- NAVBAR -->
+<!-- NAVBAR -->
+<nav class="navbar navbar-expand-lg custom-navbar px-4">
+
+    <!-- LEFT: LOGO + TITLE -->
+    <div class="d-flex align-items-center">
+        <div class="logo-box me-3">
+            <i class="bi bi-graph-up-arrow"></i>
+        </div>
+
+        <div>
+            <h5 class="mb-0 fw-bold text-white">AI Insights</h5>
+            <small style="color: cyan;">Spam Detection Dashboard</small>
+        </div>
+    </div>
+
+    <!-- TOGGLE (for mobile future) -->
+    <button class="navbar-toggler text-white" type="button" data-bs-toggle="collapse" data-bs-target="#navMenu">
+        <span class="navbar-toggler-icon"></span>
+    </button>
+
+    <!-- RIGHT SIDE -->
+    <div class="collapse navbar-collapse justify-content-end" id="navMenu">
+
+        <ul class="navbar-nav align-items-center gap-3">
+
+    <li class="nav-item">
+        <a href="/insights/" class="nav-link nav-btn 
+        {% if request.path == '/insights/' %}active{% endif %}">
+            <i class="bi bi-bar-chart-line"></i> Insights
+        </a>
+    </li>
+
+    <li class="nav-item">
+        <a href="/" class="nav-link nav-btn 
+        {% if request.path == '/' %}active{% endif %}">
+            <i class="bi bi-house"></i> Home
+        </a>
+    </li>
+
+    <li class="nav-item">
+        <a href="/output/" class="nav-link nav-btn 
+        {% if request.path == '/output/' %}active{% endif %}">
+            <i class="bi bi-list-ul"></i> Logs
+        </a>
+    </li>
+
+    <li class="nav-item">
+        <a href="/logout/" class="btn btn-danger btn-sm px-3">
+            <i class="bi bi-box-arrow-right"></i> Logout
+        </a>
+    </li>
+
+</ul>
+    </div>
+</nav>
+
+
+
+
+<div class="container mt-4">
+
+    <!-- ---------- TOP STATS ---------- -->
+    <div class="row mb-4 text-center">
+
+        <div class="col-md-4 mb-3">
+            <div class="stat-card">
+                <h6>Total Messages</h6>
+                <h2>{{ total }}</h2>
+            </div>
+        </div>
+
+        <div class="col-md-4 mb-3">
+            <div class="stat-card spam">
+                <h6>Spam Detected</h6>
+                <h2>{{ spam_count }}</h2>
+            </div>
+        </div>
+
+        <div class="col-md-4 mb-3">
+            <div class="stat-card safe">
+                <h6>Safe Messages</h6>
+                <h2>{{ safe_count }}</h2>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- ---------- TABLE ---------- -->
+    <div class="card p-3 mb-4">
+
+        <h5 class="mb-3">
+            <i class="bi bi-cpu"></i> Model Decisions & Feedback
+        </h5>
+
+        <div class="table-responsive custom-table">
+
+            <table class="table table-dark table-hover align-middle text-center">
+
+                <thead>
+                    <tr>
+                        <th class="text-start">Message</th>
+                        <th>Result</th>
+                        <th>Confidence</th>
+                        <th>Feedback</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+                    {% for msg in all_messages %}
+                    <tr>
+
+                        <!-- MESSAGE -->
+                        <td class="text-start">{{ msg.text }}</td>
+
+                        <!-- RESULT -->
+                        <td>
+                            {% if "Spam" in msg.result %}
+                                <span class="badge bg-danger">SPAM</span>
+                            {% else %}
+                                <span class="badge bg-success">SAFE</span>
+                            {% endif %}
+                        </td>
+
+                        <!-- CONFIDENCE -->
+                        <td>
+                            {% if msg.confidence %}
+                                <span class="badge bg-info">{{ msg.confidence }}%</span>
+                            {% else %}
+                                <span class="badge bg-secondary">N/A</span>
+                            {% endif %}
+                        </td>
+
+                        <!-- FEEDBACK -->
+                        <td>
+                            {% if msg.feedback %}
+                                <span class="text-warning">
+                                    <i class="bi bi-exclamation-circle"></i>
+                                    {{ msg.feedback }}
+                                </span>
+                            {% else %}
+                                <span class="text-secondary">No Feedback</span>
+                            {% endif %}
+                        </td>
+
+                        <!-- ACTION -->
+                        <td>
+                            <a href="/feedback/{{ msg.id }}/spam/" class="btn btn-danger btn-sm">Mark Spam</a>
+                            <a href="/feedback/{{ msg.id }}/safe/" class="btn btn-success btn-sm">Mark Safe</a>
+                        </td>
+
+                    </tr>
+                    {% endfor %}
+                </tbody>
+
+            </table>
+
+        </div>
+    </div>
+
+    <!-- ---------- BOTTOM STATS (FIXED GRID) ---------- -->
+    <div class="row text-center">
+
+        <div class="col-md-6 mb-3">
+            <div class="stat-card">
+                <h6>Model Mistakes</h6>
+                <h2 style="color:#facc15;">{{ mistakes }}</h2>
+            </div>
+        </div>
+
+        <div class="col-md-6 mb-3">
+            <div class="stat-card">
+                <h6>Model Accuracy</h6>
+                <h2 style="color:#38bdf8;">{{ accuracy }}%</h2>
+            </div>
+        </div>
+
+    </div>
+
+</div>
+
+</body>
+</html>

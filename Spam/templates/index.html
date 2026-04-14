@@ -3,165 +3,281 @@
 <head>
 <meta charset="UTF-8">
 <title>AI Moderation Dashboard</title>
+
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+<link href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css" rel="stylesheet">
+
+<!-- GOOGLE FONT -->
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
 
 <style>
+
 body {
-    background: #0f172a;
-    color: #e2e8f0;
+    background: url("/static/Spam/Images/bgb.png") no-repeat center center fixed;
+    background-size: cover;
+    font-family: 'Poppins', sans-serif;
+    color: white;
+    
 }
 
-.navbar {
-    background: #020617;
+/* NAVBAR */
+/* NAVBAR BASE */
+.custom-navbar {
+    background: linear-gradient(to right, #020617, #0f172a);
+    border-bottom: 2px solid #1e293b;
+    padding-top: 12px;
+    padding-bottom: 12px;
 }
 
-.card {
-    background: #1e293b;
+/* LOGO BOX */
+.logo-box {
+    width: 45px;
+    height: 45px;
     border-radius: 12px;
-    border: none;
+    background: linear-gradient(135deg, #3b82f6, #6366f1);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 20px;
+    box-shadow: 0 0 12px rgba(59, 130, 246, 0.6);
 }
 
+/* NAV LINKS */
+.nav-btn {
+    color: #cbd5f5 !important;
+    font-size: 14px;
+    transition: 0.3s;
+    padding: 6px 10px;
+    border-radius: 8px;
+}
+
+.nav-btn:hover {
+    background: #1e293b;
+    color: #38bdf8 !important;
+}
+
+/* ACTIVE LOOK (optional if you want later) */
+.nav-btn.active {
+    background: linear-gradient(135deg, #2563eb, #4f46e5);
+    color: white !important;
+    box-shadow: 0 0 10px rgba(59, 130, 246, 0.6);
+}
+/* ICON SPACING */
+.nav-btn i {
+    margin-right: 5px;
+}
+
+/* GLASS CARD */
+.card {
+    background: rgba(30, 41, 59, 0.6);
+    backdrop-filter: blur(12px);
+    border-radius: 16px;
+    border: 1px solid rgba(255,255,255,0.05);
+    box-shadow: 0 10px 30px rgba(0,0,0,0.4);
+}
+
+/* STATS */
+.stat-card {
+    padding: 25px;
+    text-align: center;
+    transition: 0.3s;
+}
+
+.stat-card:hover {
+    transform: scale(1.05);
+}
+
+/* INPUT */
 textarea {
     background: #020617 !important;
-    color: #f8fafc !important;
-    border: 1px solid #475569 !important;
+    color: white !important;
+    border-radius: 10px !important;
 }
 
-textarea::placeholder {
-    color: #94a3b8;
-}
-
-.badge-spam {
-    background: #ef4444;
-}
-
-.badge-safe {
-    background: #22c55e;
-}
-
-.feed-item {
-    padding: 12px;
-    border-bottom: 1px solid #334155;
-}
-
-.feed-item:hover {
-    background: #334155;
-}
-
-.result-box {
-    padding: 15px;
+/* BUTTON */
+.btn-primary {
+    background: linear-gradient(90deg, #3b82f6, #6366f1);
+    border: none;
     border-radius: 10px;
-    margin-top: 10px;
+}
+
+/* RESULT BOX */
+.result-box {
+    margin-top: 15px;
+    padding: 15px;
+    border-radius: 12px;
+    border-left: 5px solid;
 }
 
 .result-spam {
-    background: rgba(239, 68, 68, 0.1);
+    border-color: #ef4444;
 }
 
 .result-safe {
-    background: rgba(34, 197, 94, 0.1);
+    border-color: #22c55e;
+}
+.stat-card h6 {
+    color: #e2e8f0;   /* brighter */
+    font-weight: 500;
+    letter-spacing: 0.5px;
+}
+/* FEED */
+.feed-box {
+    max-height: 350px;
+    overflow-y: auto;
 }
 
-.small-text {
-    font-size: 13px;
-    color: #94a3b8;
+.feed-item span {
+    color: #f8fafc;   /* bright white */
+    font-size: 14px;
 }
 
-.stat-box {
-    background: #020617;
-    padding: 10px;
-    border-radius: 10px;
-    text-align: center;
+.feed-item:hover {
+    background: rgba(255,255,255,0.05);
 }
+
 </style>
 </head>
 
 <body>
 
 <!-- NAVBAR -->
-<nav class="navbar navbar-dark px-4">
-    <span class="navbar-brand">🧠 AI Spam Detection System</span>
-    <div>
-        <a href="/output/" class="btn btn-outline-light btn-sm">Logs</a>
-        <a href="/logout/" class="btn btn-danger btn-sm">Logout</a>
+<!-- NAVBAR -->
+<nav class="navbar navbar-expand-lg custom-navbar px-4">
+
+    <!-- LEFT: LOGO + TITLE -->
+    <div class="d-flex align-items-center">
+        <div class="logo-box me-3">
+            <i class="bi bi-graph-up-arrow"></i>
+        </div>
+
+        <div>
+            <h5 class="mb-0 fw-bold text-white">AI Insights</h5>
+            <small style="color: cyan;" >Spam Detection Dashboard</small>
+        </div>
+    </div>
+
+    <!-- TOGGLE (for mobile future) -->
+    <button class="navbar-toggler text-white" type="button" data-bs-toggle="collapse" data-bs-target="#navMenu">
+        <span class="navbar-toggler-icon"></span>
+    </button>
+
+    <!-- RIGHT SIDE -->
+    <div class="collapse navbar-collapse justify-content-end" id="navMenu">
+
+        <ul class="navbar-nav align-items-center gap-3">
+
+    <li class="nav-item">
+        <a href="/insights/" class="nav-link nav-btn 
+        {% if request.path == '/insights/' %}active{% endif %}">
+            <i class="bi bi-bar-chart-line"></i> Insights
+        </a>
+    </li>
+
+    <li class="nav-item">
+        <a href="/" class="nav-link nav-btn 
+        {% if request.path == '/' %}active{% endif %}">
+            <i class="bi bi-house"></i> Home
+        </a>
+    </li>
+
+    <li class="nav-item">
+        <a href="/output/" class="nav-link nav-btn 
+        {% if request.path == '/output/' %}active{% endif %}">
+            <i class="bi bi-list-ul"></i> Logs
+        </a>
+    </li>
+
+    <li class="nav-item">
+        <a href="/logout/" class="btn btn-danger btn-sm px-3">
+            <i class="bi bi-box-arrow-right"></i> Logout
+        </a>
+    </li>
+
+</ul>
     </div>
 </nav>
 
-<div class="container mt-4">
+<div class="container mt-5">
 
     <!-- STATS -->
-    <div class="row mb-3 text-center">
+    <div class="row mb-4 g-4">
+
         <div class="col-md-4">
-            <div class="stat-box">
-                <div>Total</div>
-                <h5>{{ comments|length }}</h5>
+            <div class="card stat-card">
+                <h6>Total Messages</h6>
+                <h2 style="color: aquamarine;">{{ total }}</h2>
             </div>
         </div>
+
         <div class="col-md-4">
-            <div class="stat-box">
-                <div>Spam Detected</div>
-                <h5 class="text-danger">{{ spam_count }}</h5>
+            <div class="card stat-card">
+                <h6>Spam Detected</h6>
+                <h2 style="color:#ef4444;">{{ spam_count }}</h2>
             </div>
         </div>
+
         <div class="col-md-4">
-            <div class="stat-box">
-                <div>Safe Messages</div>
-                <h5 class="text-success">{{ safe_count }}</h5>
+            <div class="card stat-card">
+                <h6>Safe Messages</h6>
+                <h2 style="color:#22c55e;">{{ safe_count }}</h2>
             </div>
         </div>
+
     </div>
 
-    <!-- INPUT -->
-    <div class="card p-4 mb-4">
-        <h5>Test Message</h5>
+    <!-- GRID -->
+    <div class="row g-4">
 
-        <form method="POST" action="/checkSpam/">
-            {% csrf_token %}
-            <textarea name="rawdata" class="form-control mb-3" rows="3"
-                      placeholder="Enter message..."></textarea>
-            <button class="btn btn-primary w-100">Analyze</button>
-        </form>
+        <!-- LEFT -->
+        <div class="col-md-5">
+            <div class="card p-4">
 
-        {% if last_result %}
-            <div class="result-box {% if last_result == 'Spam' %}result-spam{% else %}result-safe{% endif %}">
+                <h5> Test Message</h5>
 
-                <h6>Result:</h6>
+                <form method="POST" action="/checkSpam/">
+                    {% csrf_token %}
+                    <textarea name="rawdata" class="form-control mb-3"
+                              rows="4" placeholder="Enter message..."></textarea>
 
-                {% if last_result == "Spam" %}
-                    <span class="badge badge-spam">SPAM</span>
-                {% else %}
-                    <span class="badge badge-safe">SAFE</span>
+                    <button class="btn btn-primary w-100">Analyze</button>
+                </form>
+
+                {% if last_result %}
+                <div class="result-box {% if last_result == 'Spam' %}result-spam{% else %}result-safe{% endif %}">
+                    
+                    <h6>Prediction: {{ last_result }}</h6>
+
+                    <small>Confidence: {{ confidence }}</small>
+
+                </div>
                 {% endif %}
 
-                <div class="small-text mt-2">
-                    Confidence: {{ confidence }}%
+            </div>
+        </div>
+
+        <!-- RIGHT -->
+        <div class="col-md-7">
+            <div class="card p-3">
+
+                <h5>🟢 Clean Messages</h5>
+
+                <div class="feed-box mt-3">
+                    {% for comment in comments %}
+                        <div class="feed-item d-flex justify-content-between">
+                            <span>{{ comment.text }}</span>
+                            <span class="badge bg-success">SAFE</span>
+                        </div>
+                    {% endfor %}
                 </div>
 
-                {% if keywords %}
-                <div class="small-text">
-                    Trigger Words: {{ keywords }}
-                </div>
-                {% endif %}
-
             </div>
-        {% endif %}
-    </div>
-
-    <!-- CLEAN FEED -->
-    <div class="card p-3">
-        <h5>🟢 Clean Messages Feed</h5>
-
-        {% for comment in comments %}
-            <div class="feed-item d-flex justify-content-between">
-                <span>{{ comment.text }}</span>
-                <span class="badge badge-safe">SAFE</span>
-            </div>
-        {% empty %}
-            <p class="text-muted">No clean messages yet</p>
-        {% endfor %}
+        </div>
 
     </div>
 
+</div>
 </div>
 
 </body>

@@ -1,0 +1,21 @@
+# Python
+__pycache__/
+*.pyc
+*.pyo
+
+# Virtual env
+spam_env/
+venv/
+
+# Database
+db.sqlite3
+
+# Django
+*.log
+
+# IDE
+.vscode/
+.idea/
+
+# migrations pycache
+*/migrations/__pycache__/
