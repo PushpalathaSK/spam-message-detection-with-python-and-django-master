@@ -1,21 +1,53 @@
+# -----------------------------
 # Python
+# -----------------------------
 __pycache__/
-*.pyc
-*.pyo
+*.py[cod]
+*$py.class
 
-# Virtual env
+# -----------------------------
+# Virtual Environment
+# -----------------------------
 spam_env/
 venv/
+env/
+ENV/
 
-# Database
-db.sqlite3
+# -----------------------------
+# Environment variables
+# -----------------------------
+.env
 
+# -----------------------------
 # Django
+# -----------------------------
 *.log
+db.sqlite3
+db.sqlite3-journal
 
-# IDE
+# Migrations cache
+*/migrations/__pycache__/
+
+# -----------------------------
+# ML / Model Files (IMPORTANT)
+# -----------------------------
+*.pkl
+*.joblib
+
+# -----------------------------
+# Static & Media (optional)
+# -----------------------------
+staticfiles/
+media/
+
+# -----------------------------
+# IDE / Editor
+# -----------------------------
 .vscode/
 .idea/
 
-# migrations pycache
-*/migrations/__pycache__/
+# -----------------------------
+# OS files
+# -----------------------------
+.DS_Store
+Thumbs.db
